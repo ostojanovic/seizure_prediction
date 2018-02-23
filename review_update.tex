@@ -1,0 +1,83 @@
+\documentclass{article}
+\usepackage{url,hyperref,lineno,microtype,subcaption}
+\usepackage[onehalfspacing]{setspace}
+\usepackage[utf8]{inputenc}
+\usepackage{float}
+\usepackage[english]{babel}
+\usepackage{fullpage}
+\usepackage{multirow}
+\usepackage{array, makecell} 
+\usepackage[export]{adjustbox}
+\usepackage[T1]{fontenc}
+\usepackage{newtxmath,newtxtext}
+\usepackage{apacite}
+\urlstyle{same}
+\Urlmuskip=0mu plus 1mu\relax
+\bibliographystyle{apacite}
+
+\linenumbers
+
+\title{\fontsize{16}{12}\selectfont{}\textbf{Review update}}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Methods (overview/pipeline)}
+
+\textbf{*numerated points are for the overview of the method, bullet points are for writing up the more detailed part.*} \\
+
+The method consists of four stages: data preprocessing, feature extraction, classification and evaluation of results. \\
+
+In the stage of feature extraction spectrograms of iEEG signals were calculated. Spectrograms were later decomposed, in order to examine better the time and the frequency component. Nonnegative matrix factorization was used as a decomposition tool.  
+
+NMF produced two components, a time and a frequency component. Robust regression was used to fit components and to supress influence of outliers. After fitting, an outer product of components was calculated. This outer product is an individual time-frequency signature that reveals differences between preictal and interictal states. Signatures are smoother than spectrograms. 
+
+Average time-frequency signatures were obtained for both states. Individual and average signatures were compared to each other. Correlation coefficient was used as a tool for measuring similarity. 
+
+After feature extraction, preictal and interictal states were classified. Obtained correlation coefficients were used for classification between preictal and interictal states. SVM and RDF are used as classifiers. Two subsets of data were made: balanced set, which contained equal proportion of both classes and imbalanced set, which contained 60\% of interictal and 40\% of preictal class. 
+
+Performance of the algorithm was later evaluated using accuracy, sensitivity and specificity and positive and negative predictive values. \\
+
+
+
+The method consists of four stages:
+
+\begin{enumerate}
+\item data preprocessing
+
+In the stage of data preprocessing, raw intracranial EEG signal is filtered, cleaned of artefacts and bad electrodes and cut in different parts, according to different stages.
+
+\begin{itemize}
+\item filtering
+\item cleaning of artefacts and bad electrodes and electrode detachment
+\item cut in stages
+\end{itemize} 
+
+\item feature extraction
+
+Feature extraction stage where we go from raw data to spectrograms to decomposition of spectrograms using nonnegative matrix factorization, to modeling of decomposed components, to making smooth spectrogram a.k.a. time-frequency signature by multiplying decomposed components to making average models per channel to correlation coefficients between average models and time-frequency signatures. 
+
+\begin{itemize}
+\item calculation of spectrograms and why exactly spectrograms
+\item decomposition of spectrograms, why we want to do it, why exactly NMF, what do we get out
+\item NMF components, why do we want to model them
+\item why do we model components with robust regression, what do we get out
+\item why do we multiply components again, what is the time-frequency signature telling us
+\item why and how do we make average models
+\item why do we use correlation coefficients and what is the whole picture of colleration coefficients telling us
+\end{itemize}
+ 
+
+\item classification
+
+In this stage, features (correlation coefficients) are used for classification between preictal and interictal states. SVM and RDF are used as classifiers. Two subsets of data were made: balanced set, which contained equal proportion of both classes and imbalanced set, which contained 60\% of interictal and 40\% of preictal class.  \\
+
+\item evaluation of results
+
+In this part, performance of the algorithm is evaluated. Used measures are confusion matrices, accuracy, sensitivity and specificity and positive and negative predictive values. \\
+
+\end{enumerate}
+
+\end{document}
