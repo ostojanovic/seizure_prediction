@@ -28,55 +28,100 @@
 
 \textbf{*numerated points are for the overview of the method, bullet points are for writing up the more detailed part.*} \\
 
-The method consists of four stages: data preprocessing, feature extraction, classification and evaluation of results. \\
+The main idea of the method is to find and measure diferences between preictal and interictal states and to classify states. In order to do this, raw intracranial EEG data needs to be transformed to a simple informative and explanatory measure, which would be used as a feature for classification. The method consists of four stages: data preprocessing, feature extraction, classification and evaluation of results. 
 
-In the stage of feature extraction spectrograms of iEEG signals were calculated. Spectrograms were later decomposed, in order to examine better the time and the frequency component. Nonnegative matrix factorization was used as a decomposition tool.  
+In the stage of data preprocessing, raw intracranial EEG signal is filtered, cleaned of artefacts (e.g. movement artefacts, detached electrodes) and cut in time intervals called individual measurement periods. 
 
-NMF produced two components, a time and a frequency component. Robust regression was used to fit components and to supress influence of outliers. After fitting, an outer product of components was calculated. This outer product is an individual time-frequency signature that reveals differences between preictal and interictal states. Signatures are smoother than spectrograms. 
+In the stage of feature extraction raw data was transformed to correlation coefficients between models of different states. 
+First, spectrograms of iEEG signals were calculated. In order to examine better time and frequency changes, spectrograms were decomposed. Nonnegative matrix factorization was used as a decomposition tool. NMF produced two components, a time and a frequency component. 
+Second, NMF components were fit. Robust regression was used to supress influence of outliers. After fitting, an outer product of components was calculated. This outer product is an individual time-frequency signature that reveals differences between preictal and interictal states. 
+Third, average time-frequency signatures were obtained for both states. 
+Finally, individual and average signatures were compared to each other. Correlation coefficient was used as a tool for measuring similarity. 
 
-Average time-frequency signatures were obtained for both states. Individual and average signatures were compared to each other. Correlation coefficient was used as a tool for measuring similarity. 
+After the feature extraction, preictal and interictal states were classified. Correlation coefficients were used as features for classification and SVM and RDF were used as classifiers. 
 
-After feature extraction, preictal and interictal states were classified. Obtained correlation coefficients were used for classification between preictal and interictal states. SVM and RDF are used as classifiers. Two subsets of data were made: balanced set, which contained equal proportion of both classes and imbalanced set, which contained 60\% of interictal and 40\% of preictal class. 
+Performance of the algorithm was then evaluated using accuracy, sensitivity and specificity and positive and negative predictive values. 
 
-Performance of the algorithm was later evaluated using accuracy, sensitivity and specificity and positive and negative predictive values. \\
+\subsection{Data preparation}
+
+Data was first prepared and preprocessed. Data used in this project consisted of EEG recordings of six patients (two females; median age: 33) [Tab.\ref{tab:1}], which were recorded as a part of pre-operational monitoring at the University Medical Center Freiburg (Universit{\"a}tsklinikum Freiburg), and form parts of the bigger Freiburg EPILEPSIAE database. \shortcite{ihle_epilepsiae_2012} Recording lasted over the course of several days (three to nine), and took place between 2003 and 2009. The sampling frequency was between 256Hz and 1024Hz. The electrodes used in the recordings included intracranial (depth, strip and grid) and surface electrodes, together with special electrodes (ECG, EMG and EOG). Their number varied between 31 and 122, depending on the diagnosis. In order to investigate preictal states thoroughly, only intracranial EEG recordings were used. 
+
+Raw intracranial EEG signals were cut in shorter time intervals. A five minute seizure horizon was used. In the case of a preictal state, an interval of five minutes leading up to a seizure was extracted. In the case of an interictal state, five minutes without seizures were extracted. All interictal intervals were at least 11 minutes before or after a seizure. We refered to these intervals of extracted signals as individual measurement periods. 
+
+The data were filtered with the Parks-McClellan optimal equiripple FIR filter to remove 50Hz line noise. Every individual measurement period was visually inspected, its time stamps were checked, and channels with artefacts (detached electrodes, strong movement artefacts, etc.) were rejected. 
 
 
+\subsection{Feature extraction}
 
-The method consists of four stages:
+In the stage of feature extraction raw data was transformed to correlation coefficients between models of different states. 
+First, spectrograms of iEEG signals were calculated. In order to examine better time and frequency changes, spectrograms were decomposed. Nonnegative matrix factorization was used as a decomposition tool. NMF produced two components, a time and a frequency component. 
+Second, NMF components were fit. Robust regression was used to supress influence of outliers. After fitting, an outer product of components was calculated. This outer product is an individual time-frequency signature that reveals differences between preictal and interictal states. 
+Third, average time-frequency signatures were obtained for both states. 
+Finally, individual and average signatures were compared to each other. Correlation coefficient was used as a tool for measuring similarity. 
 
-\begin{enumerate}
-\item data preprocessing
 
-In the stage of data preprocessing, raw intracranial EEG signal is filtered, cleaned of artefacts and bad electrodes and cut in different parts, according to different stages.
+\subsubsection{Calculation of spectrograms}
+
+Power spectra hold information about both time and frequency changes in iEEG signal. Another reason for focus on power spectra is because it is simple and intuitive. To identify stereotypical signatures between and ahead of seizures and, most importantly, to understand phenomena before seizures, spectrograms of each channel [Fig.\ref{fig:1}] were obtained using the multitaper method. \shortcite {cohen_analyzing_2014} We used time windows of 10 seconds ($50\%$ overlap of a 20 seconds window, the number of DFT points of 1024, 15 Slepian tapers). As a baseline correction for both states, average interictal spectrograms for each channel were calculated. 
+
+Due to the clinical setting and patient's diagnoses, the sampling frequency varies among different patients. As a result, the highest frequency in spectrogram varies between 128Hz and 513Hz. However, this difference is addressed by the fact that we have patient specific models. 
+
+After obtaining spectrograms for every channel and of every individual measurement period, they were visually inspected, and in the case of anomalies (50Hz component, detached electrodes, etc.), rejected. Since the 50Hz component was very strong, additional removal was performed. In addition to that, if seizure leakage (i.e. an onset of a seizure before the onset label that can happen due to hand-labeling of a raw iEEG signal) was found in spectrograms of preictal condition or an electrode detachment in the beginning, then corrupted windows were deleted and opposite windows were padded. In that way, the length of spectrograms was preserved. 
+
+Since the normal mean in spectrograms of individual measurement periods is dominated by outlieres, the trimmed mean of 75\% of a spectrogram for each channel was calculated and used for modeling. The 75\% was decided beacuse outliers in epilepsy data were immense and were masking the real preictal activity. 
+
+\subsubsection{Nonnegative matrix factorization}
+
+In order to examine  time and frequency changes in a more thorough way, spectrograms of each channel were decomposed. This ensures that time-frequency features were simplifyied and informative components of a spectrogram isolated. Nonnegative matrix decomposition (NMF) was used as a tool. \shortcite{lee_learning_1999} 
+
+This is a decomposition method used for dimensionality reduction and source separation. It factorizes an original source (in our case, a spectrogram) into a positively weighted linear combination of multiple positive basis components. Nonnegative matrix factorization decomposes a nonnegative matrix $V$ into two nonnegative matrices $W$ and $H$. \shortcite{lee_learning_1999}
+
+$$V_{n \times m} = W_{n \times r} \times H_{r \times m}$$
+$$V_{ij}=\sum_{a=1}^r W_{ia}H_{aj}$$ 
+
+\noindent Here, $W$ is a matrix of basis vectors, while $H$ is a matrix of coefficient vectors. The constraint in this factorization is that the rank of factorization $r$ has to be significantly lower than the number of dimensions $m$ or $n$. \shortcite{lee_learning_1999} The product $WH$ can be interpreted as a compressed form of the data in $V$. \shortcite{lee_learning_1999} Due to its nonnegativity, this results in NMF learning a parts-based representation. \shortcite{lee_learning_1999} We decided on a rank of factorization of one to get the simplest solution (the most constrained model). NMF was proven to be a good tool in decomposing and interpreting spectra of EEG signals \shortcite {lee_kernel_2009}, \shortcite{lee_group_nodate} and for detection of interictal epileptiform discharges. \shortcite{baud_unsupervised_2017} 
+
+Since in our case, the decomposition was performed on spectrograms, the informative components that NMF learned were a time component (coefficients $H$) and a frequency component (basis vectors $W$).[Fig.\ref{fig:2}]
+
+
+These components were multiplied in order to obtain a "compressed" time-frequency signature.[Fig.\ref{fig:4}]
+
+
+\subsubsection{Robust regression}
+
+To investigate differences between preictal and interictal states, the NMF components were modeled for each state. [Fig.\ref{fig:2}] The time component was modeled using a polynomial of second order, while the frequency component was modeled using nonlinearly spaced B-splines of sixth order to consider the frequency resolution that deceases for higher frequencies. Modeling data as presented here indicated differences in the regression models for the time and frequency components of preictal and interictal states.[Fig.\ref{fig:2}] Robust regression was chosen to lessen the influence of outliers: data points with high residuals (outliers) are not treated equally when calculating regression equation, but rather assigned lower weights using an iteratively reweighted least squares optimization algorithm. \shortcite{nasraoui_brief_2002}
+After the modeling, time and frequency components were multiplied to obtain a model of the time-frequency signature. [Fig.\ref{fig:3}][Fig.\ref{fig:4}]
 
 \begin{itemize}
-\item filtering
-\item cleaning of artefacts and bad electrodes and electrode detachment
-\item cut in stages
-\end{itemize} 
-
-\item feature extraction
-
-Feature extraction stage where we go from raw data to spectrograms to decomposition of spectrograms using nonnegative matrix factorization, to modeling of decomposed components, to making smooth spectrogram a.k.a. time-frequency signature by multiplying decomposed components to making average models per channel to correlation coefficients between average models and time-frequency signatures. 
-
-\begin{itemize}
-\item calculation of spectrograms and why exactly spectrograms
-\item decomposition of spectrograms, why we want to do it, why exactly NMF, what do we get out
 \item NMF components, why do we want to model them
+
 \item why do we model components with robust regression, what do we get out
+
 \item why do we multiply components again, what is the time-frequency signature telling us
+
 \item why and how do we make average models
+
 \item why do we use correlation coefficients and what is the whole picture of colleration coefficients telling us
 \end{itemize}
- 
+
+
+
+\subsubsection{Correlation}
+
+In order to contrast differences between the two states, we modeled an average spectrogram across all measurement periods in the training set for both preictal and interictal states and each channel. The trimmed mean of 75\% of a spectrogram for each channel was calculated and used in order to make the average of spectrograms robust to outliers. Average spectrograms were modeled in the same way as individual measurement intervals, and their compressed time-frequency signatures were obtained. The resulting average model captured a prototypical preictal or interictal behavior for each channel. A channel-wise comparison between each average model (preictal and interictal) and models of individual measurement intervals (preictal and interictal) was performed using correlation coefficients as a similarity measure. For each channel, this resulted in a similarity measure between each individual measurement period and the two average models of preictal and interictal states of the corresponding channel. These correlation coefficients were organized into four matrices [Fig.\ref{fig:5}] containing coefficients between average interictal and individual interictal measurement periods, average interictal and individual preictal measurement periods, average preictal and individual interictal measurement periods, and average preictal and individual preictal measurement periods, respectively. 
+
+
+\begin{enumerate}
+
 
 \item classification
 
-In this stage, features (correlation coefficients) are used for classification between preictal and interictal states. SVM and RDF are used as classifiers. Two subsets of data were made: balanced set, which contained equal proportion of both classes and imbalanced set, which contained 60\% of interictal and 40\% of preictal class.  \\
+After the feature extraction, preictal and interictal states were classified. Correlation coefficients were used as features for classification and SVM and RDF were used as classifiers. Two subsets of data were made: balanced set, which contained equal proportion of both classes and imbalanced set, which contained 60\% of interictal and 40\% of preictal class.  
 
 \item evaluation of results
 
-In this part, performance of the algorithm is evaluated. Used measures are confusion matrices, accuracy, sensitivity and specificity and positive and negative predictive values. \\
+Performance of the algorithm was then evaluated using accuracy, sensitivity and specificity and positive and negative predictive values. 
+
 
 \end{enumerate}
 
