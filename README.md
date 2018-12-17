@@ -1,2 +1,2 @@
 # epilepsy_project
-Code for the project: "Identifying preictal signatures of power spectra in iEEG signal of epileptic patients"
+Code for the project: "Preictal signatures revealed by nonnegative matrix factorization"
