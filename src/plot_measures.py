@@ -14,7 +14,6 @@ plt.rcParams["font.family"] = "Bitstream Charter"
 
 patients = ["11502", "25302", "59002", "62002", "97002", "109602"]
 
-
 accuracy_svm = []
 accuracy_smote = []
 
@@ -62,7 +61,7 @@ ax1.set_xticklabels([70, 80, 90, 100])
 ax1.set_ylim([0,7])
 ax1.set_yticks([1, 2, 3, 4, 5, 6])
 ax1.set_yticklabels([1, 2, 3, 4, 5, 6])
-ax1.tick_params(axis='both', which='both', top=False, labelsize=18)
+ax1.tick_params(axis='both', which='both', top=False, labelsize=18, length=8)
 
 ax1.spines['right'].set_visible(False)
 ax1.spines['left'].set_visible(False)
@@ -89,7 +88,7 @@ plt.fill_between([0,1],[1,0], facecolor="none", hatch="X", edgecolor="black", li
 
 plt.xlim([-0.01, 1.05])
 plt.ylim([-0.01, 1.05])
-plt.tick_params(axis='both',labelsize=18)
+plt.tick_params(axis='both',labelsize=18, length=8)
 
 plt.legend(handles, ["1", "2", "3", "4", "5", "6"], fontsize=14, ncol=2, loc="lower left")
 
@@ -106,7 +105,7 @@ plt.fill_between([0,1],[1,0], facecolor="none", hatch="X", edgecolor="black", li
 
 plt.xlim([-0.01, 1.05])
 plt.ylim([-0.01, 1.05])
-plt.tick_params(axis='both',labelsize=18, labelleft=False)
+plt.tick_params(axis='both',labelsize=18, labelleft=False, length=8)
 
 plt.xlabel('Positive predictive value',fontsize=22)
 plt.ylabel('Negative predictive value',fontsize=22)

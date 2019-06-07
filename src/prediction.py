@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from warnings import filterwarnings
 filterwarnings('ignore')
 
-patient_id = '109602'  #[11502, 25302, 59002, 62002, 97002, 109602]
+patient_id = '62002'  #[11502, 25302, 59002, 62002, 97002, 109602]
 path = '/net/store/ni/projects/Data/intracranial_data/Freiburg_epilepsy_unit/patient_'+patient_id+'_extracted_seizures/'
 
 num_channels = {"11502":48, "25302": 26, "59002": 94, "62002": 38, "97002": 91, "109602": 68}
@@ -51,6 +51,9 @@ fn_smote = np.zeros((num_folds,1))
 
 tp_svm = np.zeros((num_folds,1))
 tp_smote = np.zeros((num_folds,1))
+
+num_smote_samples_preictal = np.zeros((num_folds,1))
+num_smote_samples_interictal = np.zeros((num_folds,1))
 
 ### obtaining data ###
 files_interictal = []
@@ -107,6 +110,10 @@ for idx in range(num_folds):
     ### smote+svm classifier ###
     smote = SMOTE(k_neighbors=5, sampling_strategy="minority")
     X_smote, y_smote = smote.fit_resample(data.reshape((num_channels[patient_id]*(size_freq_component+size_time_component), -1)).T, labels)
+
+    num_smote_samples_preictal[idx, :] = np.count_nonzero(y_smote)              # need this only to report it in a paper
+    num_smote_samples_interictal[idx, :] = np.shape(y_smote)[0] - np.count_nonzero(y_smote)
+
     smote_data_train, smote_data_test, smote_label_train, smote_label_test = train_test_split(X_smote, y_smote, test_size=0.3, shuffle=True)
 
     model_smote = LinearSVC(penalty="l1", loss="squared_hinge", dual=False, max_iter=5000)
@@ -165,6 +172,8 @@ evaluation_final = dict([('accuracy_svm', np.mean(accuracy_svm)),
                          ("fscore_svm", np.mean(fscore_svm)),
                          ("positive_predictive_svm", np.mean(ppv_svm)),
                          ("negative_predictive_svm", np.mean(npv_svm)),
+                         ("num_files_preictal", len(files_preictal[0])),
+                         ("num_files_interictal", len(files_interictal[0])),
 
                          ('accuracy_smote', np.mean(accuracy_smote)),
                          ('precision_smote', np.mean(precision_smote)),
@@ -172,7 +181,9 @@ evaluation_final = dict([('accuracy_svm', np.mean(accuracy_svm)),
                          ('specificity_smote', np.mean(specificity_smote)),
                          ("fscore_smote", np.mean(fscore_smote)),
                          ("positive_predictive_smote", np.mean(ppv_smote)),
-                         ("negative_predictive_smote", np.mean(npv_smote))])
+                         ("negative_predictive_smote", np.mean(npv_smote)),
+                         ("num_smote_samples_preictal", np.mean(num_smote_samples_preictal)),
+                         ("num_smote_samples_interictal", np.mean(num_smote_samples_interictal))])
 
 conf_matrices_final = dict([("true_negative_svm", np.mean(tn_svm)),
                             ("false_positive_svm", np.mean(fp_svm)),
