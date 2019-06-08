@@ -1,17 +1,12 @@
 
-path_directory = '/net/store/ni/projects/Data/intracranial_data/Freiburg_epilepsy_unit/';
-base_directory = 'patient_97002_extracted_seizures/97002102/data_clinical_97002_3/out-of-sample/preictal_97002_3';
-%in-sample/preictal_test_97002_3';
+path_directory = '';
 
-%data_baseline_97002_3/out-of-sample/baseline1_97002_3';
-%in-sample/baseline1_test_97002_3';
-
-dir_baseline = dir(strcat(path_directory,base_directory,'/','*mat'));
-num_files = size(dir_baseline,1);
+dir = dir(strcat(path,'/','*mat'));
+num_files = size(dir,1);
 
 for i = 1:num_files
 
-    load(strcat(path_directory,base_directory,'/',dir_baseline(i).name))
+    load(strcat(path_directory,base_directory,'/',dir(i).name))
     dir_baseline(i).name
 
     if ismember(electrode_sets.names,'GB7')==0 & size(first_half,2)==97
@@ -71,7 +66,7 @@ for i = 1:num_files
 
     disp('everything ok')
     if size(electrode_sets.names,2) == 91 && size(first_half,2) == 91
-        savename = (strcat(path_directory,base_directory,'/',dir_baseline(i).name));
+        savename = (strcat(path,'/',dir(i).name));
         save(savename, 'electrode_sets', 'first_half', 'selected_seizures');
         disp('everything ok')
     else
