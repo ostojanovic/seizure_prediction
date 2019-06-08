@@ -37,35 +37,20 @@ for i = 1:num_files
         temp = spectrogram_preictal(IDXC,:,:);
 
         % Compute the mean and median for eye inspection only
-        % for preictal
         mean_preictal_Spec   = squeeze(mean(temp,1));
         mean_preictal_SpecR  = squeeze(trimmean(temp,75,1));
         median_preictal_Spec = squeeze(median(temp,1));
-
-        %% nnmf and modelling
-
-        % Do the nnmf for the two cases.
-        % Important is that time is modeled only with second order - that makes
-        % interpretation very easy.
-        % The fre is modelled with non linerly spaces cubic splines to consider the
-        % frequency resolution that deceases for higher freqs.
-        % The results is a prototype TF image based on the modelled nnmf.
-
-        % The results is a prototype TF image based on the modelled nnmf.
-        % If you have nnmf_order=1 you get one model.
-        % For nnmf_order=2 you get 4. I have the feeling 1 works good; 4 doesn't.
 
         % preictal
         [w_preictal,h_preictal] = nnmf(mean_preictal_SpecR,nnmf_order);       % cp1 (W) is a time component; cp2 (H) is a frequency component
         [w_model_preictal,w_parameters_preictal] = fit_polynominal(w_preictal,time_order);
         [h_model_preictal,h_parameters_preictal] = fit_splines(h_preictal',freq_order,0);
 
-        % Models_Preictal contains a single average model per periods for 1 IDXC channel
         IDXM3 = 0;
-        for IDXM1 = 1:size(w_preictal,2)           % it's always 1, but IDXM1 is for model one == x_model
-            for IDXM2 = 1:size(h_preictal,1)       % it's always 1, but IDXM2 is for two one == y_model
-                IDXM3 = IDXM3 +1;           % it's always 1, but IDXM3 is for three one == Models_Preictal
-                Models_Preictal(IDXM3,:,:) = (w_model_preictal(IDXM1,:)'*h_model_preictal(IDXM2,:));   % prototype tf model for baseline
+        for IDXM1 = 1:size(w_preictal,2)
+            for IDXM2 = 1:size(h_preictal,1)
+                IDXM3 = IDXM3 +1;           
+                Models_Preictal(IDXM3,:,:) = (w_model_preictal(IDXM1,:)'*h_model_preictal(IDXM2,:));   % prototype tf model
             end
         end
 
@@ -83,9 +68,7 @@ for i = 1:num_files
     end
 
     %% saving
-
     savename_part = strsplit(files(i).name,'spectrogram_');
-
     savename_preictal = strcat(path_directory,preictal_directory,'models_preictal/',run_nr,'/',sample,'/Model_',savename_part{2});
     save(savename_preictal,'sample','run_nr','patient_id','W_preictal','H_preictal','W_model_preictal','H_model_preictal','W_parameters_preictal','H_parameters_preictal','Models_preictal')
 
