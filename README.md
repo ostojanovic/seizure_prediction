@@ -1,2 +1,2 @@
 # seizure prediction
-Code for the project: "Preictal signatures revealed by nonnegative matrix factorization"
+Code for the project: "Seizure prediction using nonnegative matrix factorization"
