@@ -5,7 +5,6 @@ path_directory = '';
 patient_id = '';
 
 dir = dir(strcat(path,'baseline_',patient_id,'/','*mat'));
-
 num_files = size(dir,1);
 
 fs = 1024;
@@ -15,7 +14,7 @@ nfft = 1024;                                    % number of dft points
 
 for i=1:num_files
 
-    load(strcat(path_directory,base_directory,'baseline_',patient_id,'/',dir(i).name));
+    load(strcat(path,'baseline_',patient_id,'/',dir(i).name));
     interictal = first_half;
 
     %% defining parameters for welch and multitaper method
