@@ -3,21 +3,24 @@ import os, pickle, json
 import numpy as np
 import scipy.io as sio
 from imblearn.over_sampling import SMOTE
-from sklearn.svm import LinearSVC, SVC
+from sklearn.svm import LinearSVC
 from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
 from sklearn.model_selection import train_test_split
 from warnings import filterwarnings
 filterwarnings('ignore')
 
-patient_id = '62002'  #[11502, 25302, 59002, 62002, 97002, 109602]
+patient_id = '109602'  #[11502, 25302, 59002, 62002, 97002, 109602]
 path = '/net/store/ni/projects/Data/intracranial_data/Freiburg_epilepsy_unit/patient_'+patient_id+'_extracted_seizures/'
 
 num_channels = {"11502":48, "25302": 26, "59002": 94, "62002": 38, "97002": 91, "109602": 68}
-size_freq_component = 502
-size_time_component = 29
+size_freq_parameters = 9
+size_time_parameters = 3
 num_folds = 100
 
 ####################################################################################################################################################################
+
+coefficients_svm = []
+coefficients_smote = []
 
 accuracy_svm = np.zeros((num_folds,1))
 accuracy_smote = np.zeros((num_folds,1))
@@ -59,20 +62,20 @@ num_smote_samples_interictal = np.zeros((num_folds,1))
 files_interictal = []
 for root_interictal, dirs, files in os.walk(path+'data/models_interictal/',topdown=True):
     files_interictal.append(files)
-interictal = np.zeros((num_channels[patient_id], size_freq_component+size_time_component, len(files_interictal[0])))
+interictal = np.zeros((num_channels[patient_id], size_freq_parameters+size_time_parameters, len(files_interictal[0])))
 
 for idx, val in enumerate(files_interictal[0]):
     current = sio.loadmat(os.path.join(root_interictal,val))
-    interictal[:,:,idx] = np.hstack((current['H_model_baseline'], current['W_model_baseline']))
+    interictal[:,:,idx] = np.hstack((current['H_parameters_baseline'], current['W_parameters_baseline']))
 
 files_preictal = []
 for root_preictal, dirs, files in os.walk(path+'data/models_preictal/',topdown=True):
     files_preictal.append(files)
-preictal = np.zeros((num_channels[patient_id], size_freq_component+size_time_component, len(files_preictal[0])))
+preictal = np.zeros((num_channels[patient_id], size_freq_parameters+size_time_parameters, len(files_preictal[0])))
 
 for idx, val in enumerate(files_preictal[0]):
     current = sio.loadmat(os.path.join(root_preictal,val))
-    preictal[:,:,idx] = np.hstack((current['H_model_preictal'], current['W_model_preictal']))
+    preictal[:,:,idx] = np.hstack((current['H_parameters_preictal'], current['W_parameters_preictal']))
 
 data = np.concatenate((interictal, preictal), axis=2)
 labels = np.concatenate((np.zeros(len(files_interictal[0])) , np.ones(len(files_preictal[0]))))
@@ -87,11 +90,12 @@ for idx in range(num_folds):
 
     ### svm classifier ###
     data_train, data_test, label_train, label_test = train_test_split(
-    data.reshape((num_channels[patient_id]*(size_freq_component+size_time_component), -1)).T, labels, test_size=0.3, shuffle=True)
+    data.reshape((num_channels[patient_id]*(size_freq_parameters+size_time_parameters), -1)).T, labels, test_size=0.3, shuffle=True)
 
-    model_svm = LinearSVC(penalty="l1", loss="squared_hinge", dual=False, max_iter=5000)
+    model_svm = LinearSVC(penalty="l1", dual=False, max_iter=5000)
     model_svm.fit(data_train, label_train)
     parameters_svm = model_svm.get_params()
+    coefficients_svm.append(model_svm.coef_.tolist())
 
     predict_svm = model_svm.predict(data_test)
     accuracy_svm[idx,:] = (predict_svm == label_test).mean()
@@ -109,16 +113,17 @@ for idx in range(num_folds):
 
     ### smote+svm classifier ###
     smote = SMOTE(k_neighbors=5, sampling_strategy="minority")
-    X_smote, y_smote = smote.fit_resample(data.reshape((num_channels[patient_id]*(size_freq_component+size_time_component), -1)).T, labels)
+    X_smote, y_smote = smote.fit_resample(data.reshape((num_channels[patient_id]*(size_freq_parameters+size_time_parameters), -1)).T, labels)
 
     num_smote_samples_preictal[idx, :] = np.count_nonzero(y_smote)              # need this only to report it in a paper
     num_smote_samples_interictal[idx, :] = np.shape(y_smote)[0] - np.count_nonzero(y_smote)
 
     smote_data_train, smote_data_test, smote_label_train, smote_label_test = train_test_split(X_smote, y_smote, test_size=0.3, shuffle=True)
 
-    model_smote = LinearSVC(penalty="l1", loss="squared_hinge", dual=False, max_iter=5000)
+    model_smote = LinearSVC(penalty="l1", dual=False, max_iter=5000)
     model_smote.fit(smote_data_train, smote_label_train)
     parameters_smote = model_smote.get_params()
+    coefficients_smote.append(model_smote.coef_.tolist())
 
     predict_smote = model_smote.predict(smote_data_test)
     accuracy_smote[idx, :] = (predict_smote == smote_label_test).mean()
@@ -155,7 +160,7 @@ for idx in range(num_folds):
 #############################################################################################################################################################
 
     with open(path+'results/results_'+patient_id+'_'+str(idx)+'.txt', 'w') as results_file:
-        json.dump((parameters_svm, evaluation_svm, parameters_smote, evaluation_smote), results_file)
+        json.dump((parameters_svm, evaluation_svm, coefficients_svm, parameters_smote, coefficients_smote, evaluation_smote), results_file)
 
     with open(path+'prediction_models/svm_'+patient_id+'_'+str(idx)+'.pickle', 'wb') as svm_file:
         pickle.dump(model_svm, svm_file)
