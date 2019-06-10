@@ -1,4 +1,4 @@
-function [W_preictal,H_preictal,W_model_preictal,H_model_preictal,W_parameters_preictal,H_parameters_preictal,Models_preictal] = fit_preictal(path_directory,preictal_directory,files,num_files,num_channels,num_windows,sample,run_nr)
+function [W_preictal,H_preictal,W_model_preictal,H_model_preictal,W_parameters_preictal,H_parameters_preictal,Models_preictal] = fit_preictal_components(path_directory,preictal_directory,files,num_files,num_channels,num_windows,sample,run_nr)
 
 %% loading and setting the parameters
 time_order = 2;

@@ -1,6 +1,6 @@
 function [augknot,addl] = augknt(knots,k,mults)
 
-"Written by: Gordon Pipa."
+%Written by: Gordon Pipa.
 
 if nargin<3
    if (length(k)>1|k<1)

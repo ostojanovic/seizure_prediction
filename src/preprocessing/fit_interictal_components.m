@@ -1,4 +1,4 @@
-function [W_baseline,H_baseline,W_model_baseline,H_model_baseline,W_parameters_baseline,H_parameters_baseline,Models_baseline] = fit_baseline(path_directory,baseline_directory,files,num_files,num_channels,num_windows,sample,run_nr)
+function [W_baseline,H_baseline,W_model_baseline,H_model_baseline,W_parameters_baseline,H_parameters_baseline,Models_baseline] = fit_interictal_components(path_directory,baseline_directory,files,num_files,num_channels,num_windows,sample,run_nr)
 
 %% loading and setting the parameters
 time_order = 2;

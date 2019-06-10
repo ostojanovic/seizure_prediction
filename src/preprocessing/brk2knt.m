@@ -1,6 +1,6 @@
 function t = brk2knt(breaks,mults)
 
-"Written by: Gordon Pipa."
+%Written by: Gordon Pipa.
 
 s = sum(mults);
 if s==0

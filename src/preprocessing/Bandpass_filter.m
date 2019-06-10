@@ -1,6 +1,6 @@
 function [ output_data] = Bandpass_filter(input_data,Properties)
 
-"This script performs filtering of a signal with a bandpass filer. Written by: Gordon Pipa."
+%This script performs filtering of a signal with a bandpass filer. Written by: Gordon Pipa.
 
 num_bands = size(Properties.Band,2);
 for IDX_Band = 1:num_bands
