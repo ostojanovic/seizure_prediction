@@ -1,5 +1,5 @@
 
-import os
+import pickle
 import scipy.io as sio
 import numpy as np
 import seaborn as sns
@@ -17,50 +17,39 @@ This script makes three figures:
     * the combined figure of time and frequency components and a time-frequency model
 """
 
-####################################################### loading and extracting information #####################################################################
+##################################################### loading and extracting information #################################################################
 
-ident = '11502'
 patient_id = '11502'
-run_nr = '1'
-sample = 'train'
+path = '/net/store/ni/projects/Data/intracranial_data/Freiburg_epilepsy_unit/patient_'+patient_id+'_extracted_seizures/'
 
-path_directory = '/net/store/ni/projects/Data/intracranial_data/Freiburg_epilepsy_unit/'
+# num_channels = 48
+idx_channel = 0
 
-interictal_directory = 'patient_'+ident+'_extracted_seizures/data_baseline_'+patient_id+'/original/models_baseline/'+run_nr+'/'+sample+'/'
-preictal_directory = 'patient_'+ident+'_extracted_seizures/data_clinical_'+patient_id+'/models_preictal/'+run_nr+'/'+sample+'/'
+# coefficients = np.zeros((100,num_channels,12))
+#
+# for idx in range(100):
+#     with open(path+'prediction_models/smote_'+patient_id+"_"+str(idx)+".pickle", "rb") as f:
+#         file = pickle.load(f)
+#     coefficients[idx, :, : ] = file.coef_[0].reshape((num_channels,12))
+# coefficients = coefficients.mean(axis=0)[idx_channel,:]
+# freq_coeff = coefficients[:10]
+# time_coeff = coefficients[9:]
 
-spec_interictal_directory = 'patient_'+ident+'_extracted_seizures/data_baseline_'+patient_id+'/spectrograms_baseline'
-spec_preictal_directory = 'patient_'+ident+'_extracted_seizures/data_clinical_'+patient_id+'/spectrograms_preictal'
+model_interictal = sio.loadmat(path+"data/models_interictal/Model_baseline1_7.mat")
+model_preictal = sio.loadmat(path+"data/models_preictal/Model_preictal_14.mat")
 
-files_interictal = os.listdir(path_directory+interictal_directory)
-files_preictal = os.listdir(path_directory+preictal_directory)
+spectrogram_interictal = sio.loadmat(path+'data/spectrograms_interictal/spectrogram_baseline1_7.mat')["spectrogram_baseline_1"]
+spectrogram_preictal = sio.loadmat(path+'data/spectrograms_preictal/spectrogram_preictal_14.mat')["spectrogram_preictal"]
 
-spec_files_interictal = os.listdir(path_directory+spec_interictal_directory)
-spec_files_preictal = os.listdir(path_directory+spec_preictal_directory)
+W_interictal = model_interictal["W_baseline"]
+H_interictal = model_interictal["H_baseline"]
+H_model_interictal = model_interictal["H_model_baseline"]
+W_model_interictal = model_interictal["W_model_baseline"]
 
-dict_models_interictal = sio.loadmat(path_directory+interictal_directory+'/'+files_interictal[0])
-dict_models_preictal = sio.loadmat(path_directory+preictal_directory+'/'+files_preictal[0])
-
-_, spec_interictal = files_interictal[0].split("Model_baseline1")
-_, spec_preictal = files_preictal[0].split("Model_preictal")
-
-dict_spectrogram_interictal = sio.loadmat(path_directory+spec_interictal_directory+'/spectrogram_baseline1'+spec_interictal)
-dict_spectrogram_preictal = sio.loadmat(path_directory+spec_preictal_directory+'/spectrogram_preictal'+spec_preictal)
-
-W_interictal = dict_models_interictal["W_baseline"]
-H_interictal = dict_models_interictal["H_baseline"]
-H_model_interictal = dict_models_interictal["H_model_baseline"]
-W_model_interictal = dict_models_interictal["W_model_baseline"]
-
-W_preictal = dict_models_preictal["W_preictal"]
-H_preictal = dict_models_preictal["H_preictal"]
-H_model_preictal = dict_models_preictal["H_model_preictal"]
-W_model_preictal = dict_models_preictal["W_model_preictal"]
-
-spectrogram_interictal = dict_spectrogram_interictal["spectrogram_baseline_1"]
-spectrogram_preictal = dict_spectrogram_preictal["spectrogram_preictal"]
-
-idxc = 0
+W_preictal = model_preictal["W_preictal"]
+H_preictal = model_preictal["H_preictal"]
+H_model_preictal = model_preictal["H_model_preictal"]
+W_model_preictal = model_preictal["W_model_preictal"]
 
 ########################################################## extraction finished ######################################################################
 
@@ -70,8 +59,8 @@ gr = gridspec.GridSpec(nrows=2, ncols=2, width_ratios=[1, 1], height_ratios=[1, 
 fig1.subplots_adjust(left=0.1, bottom=0.10, right=0.96, top=0.92, wspace=0.17, hspace=0.27)
 
 ax10 = fig1.add_subplot(gr[0,0])
-ax10.plot(W_preictal[idxc,:], linewidth=2, color="royalblue", alpha=0.6)
-ax10.plot(W_model_preictal[idxc,:],'--', linewidth=2, color='b', alpha=0.8)
+ax10.plot(W_preictal[idx_channel,:], linewidth=2, color="royalblue", alpha=0.6)
+ax10.plot(W_model_preictal[idx_channel,:],'--', linewidth=2, color='b', alpha=0.8)
 
 ax10.set_title('Preictal state',fontsize=28)
 
@@ -86,8 +75,8 @@ ax10.set_ylim([-1, 47])
 ax10.tick_params(length=8)
 
 ax20 = fig1.add_subplot(gr[0,1], sharey=ax10)
-ax20.plot(W_interictal[idxc,:], linewidth=2, color="royalblue", alpha=0.6)
-ax20.plot(W_model_interictal[idxc,:],'--', linewidth=2, color='b', alpha=0.8)
+ax20.plot(W_interictal[idx_channel,:], linewidth=2, color="royalblue", alpha=0.6)
+ax20.plot(W_model_interictal[idx_channel,:],'--', linewidth=2, color='b', alpha=0.8)
 ax20.set_title('Interictal state',fontsize=28)
 ax20.set_xlabel('Time (min)',fontsize=22)
 
@@ -99,8 +88,8 @@ ax20.tick_params(length=8)
 ax20.legend(('Time \n component', 'Model of a \n time component'), ncol=2, fontsize=18, loc="lower left")
 
 ax30 = fig1.add_subplot(gr[1,0])
-ax30.plot(H_preictal[idxc,:], color='lightcoral', linewidth=2, alpha=0.8)
-ax30.plot(H_model_preictal[idxc,:],'--', linewidth=2, color="r", alpha=0.8)
+ax30.plot(H_preictal[idx_channel,:], color='lightcoral', linewidth=2, alpha=0.8)
+ax30.plot(H_model_preictal[idx_channel,:],'--', linewidth=2, color="r", alpha=0.8)
 ax30.set_ylabel('Frequency coefficients',fontsize=22)
 
 ax30.set_xticks([0,125,250,375,500])
@@ -112,8 +101,8 @@ ax30.set_xlabel('Frequency (Hz)',fontsize=22)
 ax30.tick_params(length=8)
 
 ax40 = fig1.add_subplot(gr[1,1])
-ax40.plot(H_interictal[idxc,:], linewidth=2, color='lightcoral', alpha=0.8)
-ax40.plot(H_model_interictal[idxc,:],'--', linewidth=2, color="r", alpha=0.8)
+ax40.plot(H_interictal[idx_channel,:], linewidth=2, color='lightcoral', alpha=0.8)
+ax40.plot(H_model_interictal[idx_channel,:],'--', linewidth=2, color="r", alpha=0.8)
 ax40.set_xlabel('Frequency (Hz)',fontsize=26)
 
 ax40.set_xticks([0,125,250,375,500])
@@ -140,7 +129,7 @@ spectrogram_preictal = np.delete(spectrogram_preictal,kill_IDX,axis=2)
 fig2, ax2 = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(16,8))
 fig2.subplots_adjust(left=0.08, bottom=0.11, right=0.94, top=0.88, wspace=0.1, hspace=0.24)
 
-img1 = ax2[0,0].imshow(np.rot90(np.expand_dims(W_model_preictal[idxc,:],axis=1)*np.expand_dims(H_model_preictal[idxc,:],axis=1).T),
+img1 = ax2[0,0].imshow(np.rot90(np.expand_dims(W_model_preictal[idx_channel,:],axis=1)*np.expand_dims(H_model_preictal[idx_channel,:],axis=1).T),
 cmap='RdBu_r',aspect='auto', vmin=0.5, vmax=1.5, extent=[0,5,0,510])
 
 ax2[0,0].set_title('Time-frequency model (preictal state)',fontsize=24)
@@ -153,7 +142,7 @@ img2 = ax2[0,1].imshow(np.rot90(spectrogram_preictal[0]),cmap='RdBu_r',aspect='a
 ax2[0,1].set_title('Spectrogram (preictal state)',fontsize=26)
 ax2[0,1].tick_params(length=8)
 
-img3 = ax2[1,0].imshow(np.rot90(np.expand_dims(W_model_interictal[idxc,:],axis=1)*np.expand_dims(H_model_interictal[idxc,:],axis=1).T),
+img3 = ax2[1,0].imshow(np.rot90(np.expand_dims(W_model_interictal[idx_channel,:],axis=1)*np.expand_dims(H_model_interictal[idx_channel,:],axis=1).T),
 cmap='RdBu_r',aspect='auto', vmin=0.5, vmax=1.5, extent=[0,5,0,510])
 
 ax2[1,0].set_title('Time-frequency model (interictal state)',fontsize=24)
@@ -197,8 +186,8 @@ for tick in ax4.get_xticklabels()+ax4.get_yticklabels():
 
 # actual plotting
 y = np.arange(H_preictal.shape[1])
-freq_comp = ax3.plot(H_preictal[idxc,:], y, linewidth=2, color='lightcoral', alpha=0.8)
-freq_model = ax3.plot(H_model_preictal[idxc,:], y, '--', linewidth=2, color="r", alpha=0.8)
+freq_comp = ax3.plot(H_preictal[idx_channel,:], y, linewidth=2, color='lightcoral', alpha=0.8)
+freq_model = ax3.plot(H_model_preictal[idx_channel,:], y, '--', linewidth=2, color="r", alpha=0.8)
 
 ax3.set_ylabel('Frequency (Hz)',fontsize=20)
 ax3.set_yticks([0,125,250,375,500])
@@ -213,11 +202,11 @@ ax3.tick_params(length=8)
 ax3.xaxis.tick_top()
 ax3.xaxis.set_label_position("top")
 
-img5 = ax4.imshow(np.rot90(np.expand_dims(W_model_preictal[idxc,:],axis=1)*np.expand_dims(H_model_preictal[idxc,:],axis=1).T),
+img5 = ax4.imshow(np.rot90(np.expand_dims(W_model_preictal[idx_channel,:],axis=1)*np.expand_dims(H_model_preictal[idx_channel,:],axis=1).T),
 cmap='RdBu_r',aspect='auto', vmin=0.5, vmax=1.5, extent=[0,30, 0, 510])
 
-time_comp = ax5.plot(W_preictal[idxc,:], linewidth=2, color="royalblue", alpha=0.6)
-time_model = ax5.plot(W_model_preictal[idxc,:],'--', linewidth=2, color="b", alpha=0.8)
+time_comp = ax5.plot(W_preictal[idx_channel,:], linewidth=2, color="royalblue", alpha=0.6)
+time_model = ax5.plot(W_model_preictal[idx_channel,:],'--', linewidth=2, color="b", alpha=0.8)
 
 ax5.set_xlabel('Time (min)', fontsize=20)
 ax5.text(29.5, -10, 'Time coefficients', rotation=270, fontsize=20)
