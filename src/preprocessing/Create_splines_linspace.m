@@ -1,11 +1,10 @@
+function [Design_Matrix] = Create_splines_linspace(length, nr_knots, kill_last_spline)
+
 %% history_spline_generator
 % This function uses built-in functions from the spline toolbox to
 % genrerate B-spline basis functions based on the length and number of
 % knots of the ongoing iteration. Written by: Gordon Pipa
 %%
-
-
-function [Design_Matrix] = Create_splines_linspace(length, nr_knots, kill_last_spline)
 
 history_time = 0:length; 
 %knots        = logspace(log10(1), log10(length), nr_knots);   

@@ -21,19 +21,7 @@ This script makes three figures:
 
 patient_id = '11502'
 path = '/net/store/ni/projects/Data/intracranial_data/Freiburg_epilepsy_unit/patient_'+patient_id+'_extracted_seizures/'
-
-# num_channels = 48
 idx_channel = 0
-
-# coefficients = np.zeros((100,num_channels,12))
-#
-# for idx in range(100):
-#     with open(path+'prediction_models/smote_'+patient_id+"_"+str(idx)+".pickle", "rb") as f:
-#         file = pickle.load(f)
-#     coefficients[idx, :, : ] = file.coef_[0].reshape((num_channels,12))
-# coefficients = coefficients.mean(axis=0)[idx_channel,:]
-# freq_coeff = coefficients[:10]
-# time_coeff = coefficients[9:]
 
 model_interictal = sio.loadmat(path+"data/models_interictal/Model_baseline1_7.mat")
 model_preictal = sio.loadmat(path+"data/models_preictal/Model_preictal_14.mat")

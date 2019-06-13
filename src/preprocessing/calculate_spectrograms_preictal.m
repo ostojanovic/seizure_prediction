@@ -1,11 +1,11 @@
 
 %% loading data
 
-path = '';
-patient_id = '';
+path = '';           % path goes here
+patient_id = '';     % patient id goes here
 
-dir_AV_baseline = dir(strcat(path,'data_baseline_',patient_id,'spectrograms_AV_baseline/','*mat'));
-dir_preictal = dir(strcat(path,'preictal_',patient_id,'/','*mat'));
+dir_AV_baseline = dir(strcat(path,'/','*mat'));
+dir_preictal = dir(strcat(path,'/','*mat'));
 num_files = size(dir_preictal,1);
 
 fs = 256;
@@ -15,17 +15,18 @@ nfft = 1024;                                    % number of dft points
 
 for i=1:num_files
 
-    load(strcat(path,'preictal_',patient_id,'/',dir_preictal(i).name));
+    load(strcat(path,'/',dir_preictal(i).name));
     preictal = first_half;
 
     % loading AV_baseline spectrogram
     num_baseline_files = size(dir_AV_baseline,1);
-
+    
+    t = clock;
     rng(floor((i*60 + t(6))*10000))
     idx_baseline = randi([1 num_baseline_files],1,1);
     AV_baseline_used = dir_AV_baseline(idx_baseline).name;
 
-    load(strcat(path_directory,'patient_97002_extracted_seizures/97002102/data_baseline_',patient_id,'/in-sample/','spectrograms_AV_baseline_',dataset,'/',dir_AV_baseline(idx_baseline).name))
+    load(strcat(path,'/',dir_AV_baseline(idx_baseline).name))
 
     %% defining parameters for welch and multitaper method
 
@@ -72,8 +73,6 @@ for i=1:num_files
     spectrogram_preictal = big_spectrogram_preictal;
 
     %% saving
-    part_temp = strsplit(dir_preictal(i).name,'_preictal_');
-    name_part  = strsplit(part_temp{2},'_1st');
-    savename_preictal = strcat(path,'spectrograms_preictal_',patient_id,'/spectrogram_preictal_',name_part{1});
+    savename_preictal = '';  % new path and name go here
     save(savename_preictal,'patient_id','spectrogram_preictal','electrode_sets', 'AV_baseline_used');
 end

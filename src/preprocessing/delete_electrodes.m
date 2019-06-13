@@ -1,13 +1,15 @@
 
-path_directory = '';
+% this is an example how to delete electrodes from a dataset
+
+path = '';  % path goes here
 
 dir = dir(strcat(path,'/','*mat'));
 num_files = size(dir,1);
 
 for i = 1:num_files
 
-    load(strcat(path_directory,base_directory,'/',dir(i).name))
-    dir_baseline(i).name
+    load(strcat(path,'/',dir(i).name))
+    dir(i).name
 
     if ismember(electrode_sets.names,'GB7')==0 & size(first_half,2)==97
 

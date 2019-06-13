@@ -1,79 +1,71 @@
-function [W_baseline,H_baseline,W_model_baseline,H_model_baseline,W_parameters_baseline,H_parameters_baseline,Models_baseline] = fit_interictal_components(path_directory,baseline_directory,files,num_files,num_channels,num_windows,sample,run_nr)
+function [W_interictal,H_interictal,W_model_interictal,H_model_interictal,W_parameters_interictal,H_parameters_interictal,Models_interictal] = fit_interictal_components(path,files,num_files,num_channels,num_windows)
 
 %% loading and setting the parameters
 time_order = 2;
 freq_order = 6;
 nnmf_order = 1;
 
-load(strcat(path_directory,baseline_directory,'spectrograms_baseline/',files(1).name)) % for getting indices of freq.bins of 50Hz component
-mean_Spec = mean(spectrogram_baseline_1(1,:,:),1);
+load(strcat(path,'spectrograms_interictal/',files(1).name)) % for getting indices of freq.bins of 50Hz component
+mean_Spec = mean(spectrogram_interictal_1(1,:,:),1);
 kill_IDX = find(mean(mean_Spec)==0);
 
 num_freq_bins = size(mean_Spec,3)-size(kill_IDX,1);
 
-W_baseline = zeros(num_channels, num_windows);
-H_baseline = zeros(num_channels, num_freq_bins);
+W_interictal = zeros(num_channels, num_windows);
+H_interictal = zeros(num_channels, num_freq_bins);
 
-W_model_baseline = zeros(num_channels, num_windows);
-H_model_baseline = zeros(num_channels, num_freq_bins);
+W_model_interictal = zeros(num_channels, num_windows);
+H_model_interictal = zeros(num_channels, num_freq_bins);
 
-W_parameters_baseline = zeros(num_channels, time_order+1);
-H_parameters_baseline = zeros(num_channels, freq_order+3);
+W_parameters_interictal = zeros(num_channels, time_order+1);
+H_parameters_interictal = zeros(num_channels, freq_order+3);
 
-Models_baseline = zeros(num_channels, num_windows, num_freq_bins);
+Models_interictal = zeros(num_channels, num_windows, num_freq_bins);
 
 %% preprocessing
 
 for i = 1:num_files
 
-    fprintf('%d out of %d periods\n',i,num_files)
+    fprintf('%d out of %d periods \n',i,num_files)
 
-    load(strcat(path_directory,baseline_directory,'spectrograms_baseline/',files(i).name))
-
-    spectrogram_baseline_1(:,:,kill_IDX) = [];       % get rid of the 50Hz component
+    load(strcat(path,'spectrograms_interictal/',files(i).name))
+    spectrogram_interictal_1(:,:,kill_IDX) = [];       % get rid of the 50Hz component
 
     for IDXC = 1:num_channels
 
-        temp = spectrogram_baseline_1(IDXC,:,:);
-
-        % Compute the mean and median for eye inspection only
-        % for baseline
-        mean_baseline_Spec   = squeeze(mean(temp,1));
-        mean_baseline_SpecR  = squeeze(trimmean(temp,75,1));
-        median_baseline_Spec = squeeze(median(temp,1));
+        temp = spectrogram_interictal_1(IDXC,:,:);
+        mean_interictal_SpecR  = squeeze(trimmean(temp,75,1));
 
         %% nnmf and modelling
 
-        % baseline
-        [w_baseline,h_baseline] = nnmf(mean_baseline_SpecR,nnmf_order);       % cp1 (W) is a time component; cp2 (H) is a frequency component
-        [w_model_baseline,w_parameters_baseline] = fit_polynominal(w_baseline,time_order);
-        [h_model_baseline,h_parameters_baseline] = fit_splines(h_baseline',freq_order,0);
+        [w_interictal,h_interictal] = nnmf(mean_interictal_SpecR,nnmf_order);       % W is a time component; H is a frequency component
+        [w_model_interictal,w_parameters_interictal] = fit_polynominal(w_interictal,time_order);
+        [h_model_interictal,h_parameters_interictal] = fit_splines(h_interictal',freq_order,0);
 
         IDXM3 = 0;
-        for IDXM1 = 1:size(w_baseline,2)
-            for IDXM2 = 1:size(h_baseline,1)
+        for IDXM1 = 1:size(w_interictal,2)
+            for IDXM2 = 1:size(h_interictal,1)
                 IDXM3 = IDXM3 +1;            
-                Models_Baseline(IDXM3,:,:) = (w_model_baseline(IDXM1,:)'*h_model_baseline(IDXM2,:));   % prototype tf model for baseline
+                Models_interictal(IDXM3,:,:) = (w_model_interictal(IDXM1,:)'*h_model_interictal(IDXM2,:));   
             end
         end
 
-        W_baseline(IDXC,:) = w_baseline';
-        H_baseline(IDXC,:) = h_baseline;
+        W_interictal(IDXC,:) = w_interictal';
+        H_interictal(IDXC,:) = h_interictal;
 
-        W_model_baseline(IDXC,:) = w_model_baseline;
-        H_model_baseline(IDXC,:) = h_model_baseline;
+        W_model_interictal(IDXC,:) = w_model_interictal;
+        H_model_interictal(IDXC,:) = h_model_interictal;
 
-        W_parameters_baseline(IDXC,:) = w_parameters_baseline;
-        H_parameters_baseline(IDXC,:) = h_parameters_baseline;
+        W_parameters_interictal(IDXC,:) = w_parameters_interictal;
+        H_parameters_interictal(IDXC,:) = h_parameters_interictal;
 
-        Models_baseline(IDXC,:,:) = Models_Baseline;
+        Models_interictal(IDXC,:,:) = Models_interictal;
 
     end
 
     %% saving
-    savename_part = strsplit(files(i).name,'spectrogram_');
-    savename_baseline = strcat(path_directory,baseline_directory,'models_baseline/',run_nr,'/',sample,'/Model_',savename_part{2});
-    save(savename_baseline,'sample','run_nr','patient_id','W_baseline','H_baseline','W_model_baseline','H_model_baseline','W_parameters_baseline','H_parameters_baseline','Models_baseline')
+    savename_interictal = '';   % new path and name go here
+    save(savename_interictal,'patient_id','W_interictal','H_interictal','W_model_interictal','H_model_interictal','W_parameters_interictal','H_parameters_interictal','Models_interictal')
 
 end
 

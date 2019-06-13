@@ -1,10 +1,10 @@
 
 %% loading data
 
-path_directory = '';
-patient_id = '';
+path = '';          % path goes here
+patient_id = '';    % patient id goes here
 
-dir = dir(strcat(path,'baseline_',patient_id,'/','*mat'));
+dir = dir(strcat(path,'/','*mat'));
 num_files = size(dir,1);
 
 fs = 1024;
@@ -14,7 +14,7 @@ nfft = 1024;                                    % number of dft points
 
 for i=1:num_files
 
-    load(strcat(path,'baseline_',patient_id,'/',dir(i).name));
+    load(strcat(path,'/',dir(i).name));
     interictal = first_half;
 
     %% defining parameters for welch and multitaper method
@@ -59,13 +59,11 @@ for i=1:num_files
     spectrogram_interictal = big_spectrogram_interictal;
 
     %% saving
-    part_temp = strsplit(dir(i).name,'_baseline_');
-    name_part  = strsplit(part_temp{2},'_1st');
 
-    savename_interictal = strcat(path_directory,base_directory, 'spectrograms_baseline1_',dataset,'/spectrogram_baseline1_',name_part{1});
-    savename_AV_baseline = strcat(path_directory,base_directory,'spectrograms_AV_baseline_',dataset,'/AV_spectrogram_',name_part{1});
+    savename_interictal = '';   % new path and name go here
+    savename_AV_baseline = '';  % new path and name go here
 
     save(savename_AV_baseline,'AV_baseline');
-    save(savename_interictal,'patient_id','spectrogram_baseline','electrode_sets');
+    save(savename_interictal,'patient_id','spectrogram_interictal','electrode_sets');
 
 end
