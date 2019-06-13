@@ -1,4 +1,4 @@
-function [model,parameter]= fit_polynominal(data,order,lin_flag)
+function [model,parameter]= fit_polynominal(data,order)
 
 x_temp = 1:size(data,1);
 x_temp = x_temp-mean(x_temp);

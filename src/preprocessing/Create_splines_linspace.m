@@ -1,7 +1,7 @@
 %% history_spline_generator
 % This function uses built-in functions from the spline toolbox to
 % genrerate B-spline basis functions based on the length and number of
-% knots of the ongoing iteration
+% knots of the ongoing iteration. Written by: Gordon Pipa
 %%
 
 
