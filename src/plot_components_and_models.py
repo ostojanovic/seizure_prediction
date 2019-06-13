@@ -19,20 +19,20 @@ This script makes three figures:
 
 ##################################################### loading and extracting information #################################################################
 
-patient_id = '11502'
-path = '/net/store/ni/projects/Data/intracranial_data/Freiburg_epilepsy_unit/patient_'+patient_id+'_extracted_seizures/'
+patient_id = ''         # patient id goes here
+path = ''               # path goes here
 idx_channel = 0
 
-model_interictal = sio.loadmat(path+"data/models_interictal/Model_baseline1_7.mat")
-model_preictal = sio.loadmat(path+"data/models_preictal/Model_preictal_14.mat")
+model_interictal = sio.loadmat(path+"data/models_interictal/*.mat")        # specific modeled measurement goes here instead of *
+model_preictal = sio.loadmat(path+"data/models_preictal/*.mat")            # specific modeled measurement goes here instead of *
 
-spectrogram_interictal = sio.loadmat(path+'data/spectrograms_interictal/spectrogram_baseline1_7.mat')["spectrogram_baseline_1"]
-spectrogram_preictal = sio.loadmat(path+'data/spectrograms_preictal/spectrogram_preictal_14.mat')["spectrogram_preictal"]
+spectrogram_interictal = sio.loadmat(path+'data/spectrograms_interictal/*.mat')["spectrogram_interictal"]      # specific spectrogram goes here instead of *
+spectrogram_preictal = sio.loadmat(path+'data/spectrograms_preictal/*.mat')["spectrogram_preictal"]            # specific spectrogram goes here instead of *
 
-W_interictal = model_interictal["W_baseline"]
-H_interictal = model_interictal["H_baseline"]
-H_model_interictal = model_interictal["H_model_baseline"]
-W_model_interictal = model_interictal["W_model_baseline"]
+W_interictal = model_interictal["W_interictal"]
+H_interictal = model_interictal["H_interictal"]
+H_model_interictal = model_interictal["H_model_interictal"]
+W_model_interictal = model_interictal["W_model_interictal"]
 
 W_preictal = model_preictal["W_preictal"]
 H_preictal = model_preictal["H_preictal"]

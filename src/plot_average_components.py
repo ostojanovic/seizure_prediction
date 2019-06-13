@@ -15,9 +15,8 @@ plt.rcParams["font.family"] = "Bitstream Charter"
 This script plots average time and frequency components of preictal and interictal states.
 """
 
-path = '/net/store/ni/projects/Data/intracranial_data/Freiburg_epilepsy_unit/'
-patients = ["11502", "25302", "59002", "62002", "97002", "109602"]
-
+path = ''           # path goes here
+patients = []       # patient ids go here
 idxc = 0
 
 W_preictal = []
@@ -32,21 +31,18 @@ H_interictal_avg = np.zeros((len(patients), 502))
 
 for idx, patient_id in enumerate(patients):
 
-    preictal = 'patient_'+patient_id+'_extracted_seizures/data/models_preictal/'
-    interictal = 'patient_'+patient_id+'_extracted_seizures/data/models_interictal/'
-
-    files_preictal = os.listdir(path+preictal)
-    files_interictal = os.listdir(path+interictal)
+    files_preictal = os.listdir(path+'data/models_preictal/')
+    files_interictal = os.listdir(path+'data/models_interictal/')
 
     for n in range(len(files_preictal)):
-        dict_models_preictal = sio.loadmat(path+preictal+files_preictal[n])
+        dict_models_preictal = sio.loadmat(path+'data/models_preictal/'+files_preictal[n])
         W_preictal.append(dict_models_preictal["W_model_preictal"][idxc,:])
         H_preictal.append(dict_models_preictal["H_model_preictal"][idxc,:])
 
     for n in range(len(files_interictal)):
-        dict_models_interictal = sio.loadmat(path+interictal+files_interictal[n])
-        H_interictal.append(dict_models_interictal["H_model_baseline"][idxc,:])
-        W_interictal.append(dict_models_interictal["W_model_baseline"][idxc,:])
+        dict_models_interictal = sio.loadmat(path+'data/models_interictal/'+files_interictal[n])
+        H_interictal.append(dict_models_interictal["H_model_interictal"][idxc,:])
+        W_interictal.append(dict_models_interictal["W_model_interictal"][idxc,:])
 
     W_preictal_avg[idx, :] = np.mean(W_preictal,axis=0)
     H_preictal_avg[idx, :] = np.mean(H_preictal,axis=0)
@@ -70,7 +66,7 @@ ax1.set_xticks([0,6,12,18,24,28])
 ax1.set_xticklabels([0,1,2,3,4,5],fontsize=16)
 ax1.tick_params(axis="y", labelleft=True, labelsize=16)
 ax1.set_xlabel('Time (min)',fontsize=20)
-ax1.set_title("Patient 1 (CH: HR1)", fontsize=20)  # 11502: 'HR1','HR2','HR3','HR4','HR5','HR6','HR7','HR8','HR9'
+ax1.set_title("Patient 1 (CH: *)", fontsize=20)         # channel name goes instead of *
 ax1.tick_params(length=6)
 
 ax2 = fig1.add_subplot(gr[0,1])
@@ -83,7 +79,7 @@ ax2.set_yticks([20,24, 28])
 ax2.set_yticklabels([20,24, 28],fontsize=16)
 ax2.tick_params(axis="y", labelleft=True, labelsize=16)
 ax2.set_xlabel('Time (min)',fontsize=20)
-ax2.set_title("Patient 2 (CH: HRA1)", fontsize=20)  # 25302_2: 'HRA1','HRA2','HRA3','HRA4','HRA5','HRB3','HRB5','HRB4','HRC3'
+ax2.set_title("Patient 2 (CH: *)", fontsize=20)         # channel name goes instead of *
 ax2.tick_params(length=6)
 
 ax3 = fig1.add_subplot(gr[0,2])
@@ -96,7 +92,7 @@ ax3.set_yticks([20,24, 28])
 ax3.set_yticklabels([20,24, 28],fontsize=16)
 ax3.tick_params(axis="y", labelleft=True, labelsize=16)
 ax3.set_xlabel('Time (min)',fontsize=20)
-ax3.set_title("Patient 3 (CH: GB1)", fontsize=20)  # 59002_2: 'GB1','GB2','GB3','GB4','GA2','GA3','GA4','GA5','GA6'
+ax3.set_title("Patient 3 (CH: *)", fontsize=20)         # channel name goes instead of *
 ax3.tick_params(length=6)
 
 ax4 = fig1.add_subplot(gr[0,3])
@@ -109,7 +105,7 @@ ax4.set_yticks([20,24, 28])
 ax4.set_yticklabels([20,24, 28],fontsize=16)
 ax4.tick_params(axis="y", labelleft=True, labelsize=16)
 ax4.set_xlabel('Time (min)',fontsize=20)
-ax4.set_title("Patient 4 (CH: TLA4)", fontsize=20)  # 62002_2: 'TLA4','TLA1','TLA2','TLA3','TLB1','TLB4','TLB2','TLB3','TLC2'
+ax4.set_title("Patient 4 (CH: *)", fontsize=20)         # channel name goes instead of *
 ax4.tick_params(length=6)
 
 ax5 = fig1.add_subplot(gr[0,4])
@@ -122,7 +118,7 @@ ax5.set_xticks([0,6,12,18,24,28])
 ax5.set_xticklabels([0,1,2,3,4,5],fontsize=16)
 ax5.tick_params(axis="y", labelleft=True, labelsize=16)
 ax5.set_xlabel('Time (min)',fontsize=20)
-ax5.set_title("Patient 5 (CH: GG5)", fontsize=20)  # 97002_2: 'GG5','GG3','GF3','GE7','GF1','GB2','GE4','GE5','GF5'
+ax5.set_title("Patient 5 (CH: *)", fontsize=20)         # channel name goes instead of *
 ax5.tick_params(length=6)
 
 ax6 = fig1.add_subplot(gr[0,5])
@@ -135,8 +131,8 @@ ax6.set_xticks([0,6,12,18,24,28])
 ax6.set_xticklabels([0,1,2,3,4,5],fontsize=16)
 ax6.tick_params(axis="y", labelleft=True, labelsize=16)
 ax6.set_xlabel('Time (min)',fontsize=20)
-ax6.set_title("Patient 6 (CH: HL8)", fontsize=20)
-ax6.legend(["Preictal", "Interictal"], fontsize=17, loc="center right")  # 109602:'HL8','HL9','HL4','HL2','HL5','HL6','HL3','HL7','HL10'
+ax6.set_title("Patient 6 (CH: *)", fontsize=20)        # channel name goes instead of *
+ax6.legend(["Preictal", "Interictal"], fontsize=17, loc="center right")
 ax6.tick_params(length=6)
 
 ax7 = fig1.add_subplot(gr[1,0])

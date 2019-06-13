@@ -13,24 +13,17 @@ plt.rcParams["font.family"] = "Bitstream Charter"
 This script plots a spectrogram of preictal and a spectrogram of interictal state.
 """
 
-ident = '11502'
 patient_id = '11502'
+path = ''           # path goes here
 
-path_directory = '/net/store/ni/projects/Data/intracranial_data/Freiburg_epilepsy_unit/'
-baseline_directory = 'patient_'+ident+'_extracted_seizures/data_baseline_'+patient_id+'/spectrograms_baseline'
-preictal_directory = 'patient_'+ident+'_extracted_seizures/data_clinical_'+patient_id+'/spectrograms_preictal'
+files_interictal = os.listdir(path+'/spectrograms_interictal')
+files_preictal = os.listdir(path+'/spectrograms_preictal')
 
-files_baseline = os.listdir(path_directory+baseline_directory)
-files_preictal = os.listdir(path_directory+preictal_directory)
-
-dict_spectrogram_baseline = sio.loadmat(path_directory+baseline_directory+'/'+files_baseline[32])
-dict_spectrogram_preictal = sio.loadmat(path_directory+preictal_directory+'/'+files_preictal[4])
-
-spectrogram_baseline = dict_spectrogram_baseline["spectrogram_baseline_1"]
-spectrogram_preictal = dict_spectrogram_preictal["spectrogram_preictal"]
+spectrogram_interictal = sio.loadmat(path+'/spectrograms_interictal/'+files_interictal[32])["spectrogram_interictal"]
+spectrogram_preictal = sio.loadmat(path+'/spectrograms_preictal/'+files_preictal[4])["spectrogram_preictal"]
 
 kill_IDX = list(np.linspace(195,205,11,dtype=int))
-spectrogram_baseline = np.delete(spectrogram_baseline, kill_IDX, axis=2)
+spectrogram_interictal = np.delete(spectrogram_interictal, kill_IDX, axis=2)
 spectrogram_preictal = np.delete(spectrogram_preictal, kill_IDX, axis=2)
 
 # plotting spectrograms
@@ -46,7 +39,7 @@ ax[0].set_yticks([0,125,250,375,500])
 ax[0].set_yticklabels([0,32,64,96,128], fontsize=22)
 ax[0].tick_params(axis="both", length=8)
 
-img2 = ax[1].imshow(np.rot90(spectrogram_baseline[0]), cmap='RdBu_r', aspect='auto', vmin=0.5, vmax=1.5, extent=[0,5,0,510])
+img2 = ax[1].imshow(np.rot90(spectrogram_interictal[0]), cmap='RdBu_r', aspect='auto', vmin=0.5, vmax=1.5, extent=[0,5,0,510])
 ax[1].set_title('Interictal state', fontsize=26)
 ax[1].set_xlabel('Time (min)', fontsize=26)
 ax[1].set_xticklabels([-5,-4,-3,-2,-1,0], fontsize=22)

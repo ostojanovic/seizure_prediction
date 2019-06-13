@@ -9,10 +9,9 @@ from sklearn.model_selection import train_test_split
 from warnings import filterwarnings
 filterwarnings('ignore')
 
-patient_id = '109602'  #[11502, 25302, 59002, 62002, 97002, 109602]
-path = '/net/store/ni/projects/Data/intracranial_data/Freiburg_epilepsy_unit/patient_'+patient_id+'_extracted_seizures/'
-
-num_channels = {"11502":48, "25302": 26, "59002": 94, "62002": 38, "97002": 91, "109602": 68}
+patient_id = ''  # patient id goes here
+path = ''   # path goes here
+num_channels = {}   # number of channels for each patient goes into this dictionary, e.g. key=patient_id, value=number_of_channels
 size_freq_parameters = 9
 size_time_parameters = 3
 num_folds = 100
@@ -66,7 +65,7 @@ interictal = np.zeros((num_channels[patient_id], size_freq_parameters+size_time_
 
 for idx, val in enumerate(files_interictal[0]):
     current = sio.loadmat(os.path.join(root_interictal,val))
-    interictal[:,:,idx] = np.hstack((current['H_parameters_baseline'], current['W_parameters_baseline']))
+    interictal[:,:,idx] = np.hstack((current['H_parameters_interictal'], current['W_parameters_interictal']))
 
 files_preictal = []
 for root_preictal, dirs, files in os.walk(path+'data/models_preictal/',topdown=True):
@@ -159,13 +158,13 @@ for idx in range(num_folds):
 
 #############################################################################################################################################################
 
-    with open(path+'results/results_'+patient_id+'_'+str(idx)+'.txt', 'w') as results_file:
+    with open(path+'*.txt', 'w') as results_file:    # new path and name go here instead of *
         json.dump((parameters_svm, evaluation_svm, coefficients_svm, parameters_smote, coefficients_smote, evaluation_smote), results_file)
 
-    with open(path+'prediction_models/svm_'+patient_id+'_'+str(idx)+'.pickle', 'wb') as svm_file:
+    with open(path+'*.pickle', 'wb') as svm_file:    # new path and name go here instead of *
         pickle.dump(model_svm, svm_file)
 
-    with open(path+'prediction_models/smote_'+patient_id+'_'+str(idx)+'.pickle', 'wb') as smote_file:
+    with open(path+'*.pickle', 'wb') as smote_file:  # new path and name go here instead of *
         pickle.dump(model_smote, smote_file)
 
 #############################################################################################################################################################
@@ -200,5 +199,5 @@ conf_matrices_final = dict([("true_negative_svm", np.mean(tn_svm)),
                             ('false_negative_smote', np.mean(fn_smote)),
                             ('true_positive_smote', np.mean(tp_smote))])
 
-with open(path+'results/all_results_'+patient_id+'.txt', 'w') as final_file:
+with open(path+'*.txt', 'w') as final_file:         # new path and name go here instead of *
     json.dump((evaluation_final, conf_matrices_final), final_file, indent=True)
