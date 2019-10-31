@@ -9,8 +9,8 @@ from sklearn.model_selection import train_test_split
 from warnings import filterwarnings
 filterwarnings('ignore')
 
-patient_id = ''  # patient id goes here
-path = ''   # path goes here
+patient_id = '*'  # patient id goes here
+path = '*'   # path goes here
 num_channels = {}   # number of channels for each patient goes into this dictionary, e.g. key=patient_id, value=number_of_channels
 size_freq_parameters = 9
 size_time_parameters = 3
@@ -59,7 +59,7 @@ num_smote_samples_interictal = np.zeros((num_folds,1))
 
 ### obtaining data ###
 files_interictal = []
-for root_interictal, dirs, files in os.walk(path+'data/models_interictal/',topdown=True):
+for root_interictal, dirs, files in os.walk('*',topdown=True): # path to a folder with interictal models goes here
     files_interictal.append(files)
 interictal = np.zeros((num_channels[patient_id], size_freq_parameters+size_time_parameters, len(files_interictal[0])))
 
@@ -68,7 +68,7 @@ for idx, val in enumerate(files_interictal[0]):
     interictal[:,:,idx] = np.hstack((current['H_parameters_interictal'], current['W_parameters_interictal']))
 
 files_preictal = []
-for root_preictal, dirs, files in os.walk(path+'data/models_preictal/',topdown=True):
+for root_preictal, dirs, files in os.walk('*',topdown=True): # path to a folder with preictal models goes here
     files_preictal.append(files)
 preictal = np.zeros((num_channels[patient_id], size_freq_parameters+size_time_parameters, len(files_preictal[0])))
 
@@ -111,7 +111,8 @@ for idx in range(num_folds):
 #############################################################################################################################################################
 
     ### smote+svm classifier ###
-    smote = SMOTE(k_neighbors=5, sampling_strategy="minority")
+    k_neigh = 2 if len(files_preictal[0]) <= 5 else 5
+    smote = SMOTE(k_neighbors=k_neigh, sampling_strategy="minority")
     X_smote, y_smote = smote.fit_resample(data.reshape((num_channels[patient_id]*(size_freq_parameters+size_time_parameters), -1)).T, labels)
 
     num_smote_samples_preictal[idx, :] = np.count_nonzero(y_smote)              # need this only to report it in a paper
@@ -158,13 +159,13 @@ for idx in range(num_folds):
 
 #############################################################################################################################################################
 
-    with open(path+'*.txt', 'w') as results_file:    # new path and name go here instead of *
+    with open('*.txt', 'w') as results_file:    # new path and name go here instead of *
         json.dump((parameters_svm, evaluation_svm, coefficients_svm, parameters_smote, coefficients_smote, evaluation_smote), results_file)
 
-    with open(path+'*.pickle', 'wb') as svm_file:    # new path and name go here instead of *
+    with open('*.pickle', 'wb') as svm_file:    # new path and name go here instead of *
         pickle.dump(model_svm, svm_file)
 
-    with open(path+'*.pickle', 'wb') as smote_file:  # new path and name go here instead of *
+    with open('*.pickle', 'wb') as smote_file:  # new path and name go here instead of *
         pickle.dump(model_smote, smote_file)
 
 #############################################################################################################################################################
@@ -199,5 +200,5 @@ conf_matrices_final = dict([("true_negative_svm", np.mean(tn_svm)),
                             ('false_negative_smote', np.mean(fn_smote)),
                             ('true_positive_smote', np.mean(tp_smote))])
 
-with open(path+'*.txt', 'w') as final_file:         # new path and name go here instead of *
+with open('*.txt', 'w') as final_file:         # new path and name go here instead of *
     json.dump((evaluation_final, conf_matrices_final), final_file, indent=True)

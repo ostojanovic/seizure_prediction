@@ -10,17 +10,20 @@ matplotlib.rcParams['text.latex.unicode'] = True
 plt.rcParams["font.family"] = "Bitstream Charter"
 
 """
-This script plots a spectrogram of preictal and a spectrogram of interictal state.
+This script plots a spectrogram of preictal and a spectrogram of interictal state of the EPILEPSIAE dataset.
 """
 
-patient_id = '11502'
-path = ''           # path goes here
+patient_id = '*'    # patient_id
+path = '*'          # path goes here
 
-files_interictal = os.listdir(path+'/spectrograms_interictal')
-files_preictal = os.listdir(path+'/spectrograms_preictal')
+files_interictal = os.listdir('*')  # path to a folder with interictal spectrograms goes here
+files_interictal.sort()
+files_preictal = os.listdir('*')  # path to a folder with preictal spectrograms goes here
+files_preictal.sort()
 
-spectrogram_interictal = sio.loadmat(path+'/spectrograms_interictal/'+files_interictal[32])["spectrogram_interictal"]
-spectrogram_preictal = sio.loadmat(path+'/spectrograms_preictal/'+files_preictal[4])["spectrogram_preictal"]
+spectrogram_interictal = sio.loadmat('*')["spectrogram_interictal"]   # path to a specific interictal spectrogram goes here
+
+spectrogram_preictal = sio.loadmat('*')["spectrogram_preictal"]   # path to a specific preictal spectrogram goes here
 
 kill_IDX = list(np.linspace(195,205,11,dtype=int))
 spectrogram_interictal = np.delete(spectrogram_interictal, kill_IDX, axis=2)
@@ -39,7 +42,8 @@ ax[0].set_yticks([0,125,250,375,500])
 ax[0].set_yticklabels([0,32,64,96,128], fontsize=22)
 ax[0].tick_params(axis="both", length=8)
 
-img2 = ax[1].imshow(np.rot90(spectrogram_interictal[0]), cmap='RdBu_r', aspect='auto', vmin=0.5, vmax=1.5, extent=[0,5,0,510])
+img2 = ax[1].imshow(np.rot90(spectrogram_interictal[0]), cmap='RdBu_r', aspect='auto',
+vmin=0.5, vmax=1.5, extent=[0,5,0,510])
 ax[1].set_title('Interictal state', fontsize=26)
 ax[1].set_xlabel('Time (min)', fontsize=26)
 ax[1].set_xticklabels([-5,-4,-3,-2,-1,0], fontsize=22)
@@ -52,5 +56,4 @@ fig.text(0.043, 0.12, r"$\textbf{A}$", fontsize=26)
 fig.text(0.47, 0.12, r"$\textbf{B}$", fontsize=26)
 fig.text(0.95, 0.5, 'Relative power', va='center', rotation='vertical',fontsize=26)
 
-# plt.savefig("figures/spectrogram.pdf", pad_inches=0.4)
-plt.show()
+plt.savefig("../figures/spectrogram.pdf", pad_inches=0.4)

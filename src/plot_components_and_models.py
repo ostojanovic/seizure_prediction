@@ -19,15 +19,15 @@ This script makes three figures:
 
 ##################################################### loading and extracting information #################################################################
 
-patient_id = ''         # patient id goes here
-path = ''               # path goes here
+patient_id = '*'         # patient id goes here
+path =  '*'               # path goes here
 idx_channel = 0
 
-model_interictal = sio.loadmat(path+"data/models_interictal/*.mat")        # specific modeled measurement goes here instead of *
-model_preictal = sio.loadmat(path+"data/models_preictal/*.mat")            # specific modeled measurement goes here instead of *
+model_interictal = sio.loadmat("*")        # specific modeled measurement goes here instead of *
+model_preictal = sio.loadmat("*")            # specific modeled measurement goes here instead of *
 
-spectrogram_interictal = sio.loadmat(path+'data/spectrograms_interictal/*.mat')["spectrogram_interictal"]      # specific spectrogram goes here instead of *
-spectrogram_preictal = sio.loadmat(path+'data/spectrograms_preictal/*.mat')["spectrogram_preictal"]            # specific spectrogram goes here instead of *
+spectrogram_interictal = sio.loadmat('*')["spectrogram_interictal"]      # specific spectrogram goes here instead of *
+spectrogram_preictal = sio.loadmat('*')["spectrogram_preictal"]            # specific spectrogram goes here instead of *
 
 W_interictal = model_interictal["W_interictal"]
 H_interictal = model_interictal["H_interictal"]
@@ -95,11 +95,12 @@ ax40.set_xlabel('Frequency (Hz)',fontsize=26)
 
 ax40.set_xticks([0,125,250,375,500])
 ax40.set_xticklabels([0,32,64,96,128],fontsize=22)
-ax40.set_yticks([0.042,0.044,0.046,0.048])
-ax40.set_yticklabels([0.042,0.044,0.046,0.048],fontsize=22)
+ax40.set_ylim([0.042, 0.05])
+ax40.set_yticks([0.044, 0.048])
+ax40.set_yticklabels([0.043, 0.044, 0.045],fontsize=22)
 ax40.tick_params(length=8)
 
-ax40.legend(('Frequency \n component','Model of a \n frequency component'), ncol=2, fontsize=18, loc="lower left")
+ax40.legend(('Frequency \n component','Model of a \n frequency component'), ncol=2, fontsize=18, loc="upper left")
 
 fig1.text(0.08,0.555,r"$\textbf{A}$",fontsize=26)
 fig1.text(0.545,0.555,r"$\textbf{B}$",fontsize=26)
@@ -219,8 +220,6 @@ fig3.text(0.93, 0.5, 'Relative power', va='center', rotation='vertical',fontsize
 
 ##############################################################################################################################
 
-# fig1.savefig("figures/components.pdf", pad_inches=0.4)
-# fig2.savefig("figures/models.pdf", pad_inches=0.4)
-# fig3.savefig("figures/model_signature_combination.pdf", pad_inches=0.4)
-
-plt.show()
+fig1.savefig("../figures/components.pdf", pad_inches=0.4) # path and figure name go here
+fig2.savefig("../figures/models.pdf", pad_inches=0.4)  # path and figure name go here
+fig3.savefig("../figures/model_signature_combination.pdf", pad_inches=0.46)    # path and figure name go here

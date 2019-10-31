@@ -15,14 +15,16 @@ This script makes two figures:
     * models of time-frequency signatures of an interictal state
 """
 
-patient_id = ''     # patient id goes here
-path = ''           # path goes here
+patient_id = '*'     # patient id goes here
+path = '*'          # path goes here
 
-files_interictal = os.listdir(path+'/data/models_interictal/')
-files_preictal = os.listdir(path+'/data/models_preictal/')
+files_interictal = os.listdir('*') # path to a folder with interictal models goes here
+files_interictal.sort()
+files_preictal = os.listdir('*')  # path to a folder with preictal models goes here
+files_preictal.sort()
 
-dict_models_interictal = sio.loadmat(path+'/data/models_interictal/'+files_interictal[0])
-dict_models_preictal = sio.loadmat(path+'/data/models_preictal/'+files_preictal[0])
+dict_models_interictal = sio.loadmat('*')  # path to a specific interictal model goes here
+dict_models_preictal = sio.loadmat('*')    # path to a specific preictal model goes here
 
 W_interictal = dict_models_interictal["W_interictal"]
 H_interictal = dict_models_interictal["H_interictal"]
@@ -35,7 +37,7 @@ H_model_preictal = dict_models_preictal["H_model_preictal"]
 W_model_preictal = dict_models_preictal["W_model_preictal"]
 
 idxc = np.arange(0,9)
-electrode_names = []        # electrode names go here
+electrode_names = []  # electrode names go here as strings in a list
 
 ############################################################### plotting preictal models ###########################################################################
 
@@ -106,8 +108,8 @@ ax1[2,2].set_xticklabels([-5,-4,-3,-2,-1,0],fontsize=22)
 ax1[2,2].tick_params(length=8)
 
 colorbar1 = fig1.colorbar(img1, ax=ax1.ravel().tolist(),fraction=0.046, pad=0.04)
-colorbar1.ax1.tick_params(labelsize=22)
-colorbar1.ax1.tick_params(length=8, labelsize=22)
+colorbar1.ax.tick_params(labelsize=22)
+colorbar1.ax.tick_params(length=8, labelsize=22)
 
 fig1.text(0.5, 0.01, 'Time (min)', ha='center',fontsize=22)
 fig1.text(0.02, 0.5, 'Frequency (Hz)', va='center', rotation='vertical',fontsize=22)
@@ -208,7 +210,5 @@ fig2.text(0.055,0.089,r"$\textbf{G}$",fontsize=22)
 fig2.text(0.335,0.089,r"$\textbf{H}$",fontsize=22)
 fig2.text(0.6,0.089,r"$\textbf{I}$",fontsize=22)
 
-plt.show()
-
-# fig1.savefig("figures/preictal_models.pdf", pad_inches=0.4)
-# fig2.savefig("figures/interictal_models.pdf", pad_inches=0.4)
+fig1.savefig("../figures/preictal_models.pdf", pad_inches=0.4)
+fig2.savefig("../figures/interictal_models.pdf", pad_inches=0.4)
